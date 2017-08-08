@@ -1,0 +1,123 @@
+
+
+
+		$(function() {
+       function ShoppingGadgets(){
+		        
+		        var _shopping_gadgets = $('.shopping_times_wdgt'),
+		            _prev_nav  = _shopping_gadgets.find('[data-slider="prev"]'),
+		            _next_nav  = _shopping_gadgets.find('[data-slider="next"]'),
+		            _slide_outer = _shopping_gadgets.find('.shopping_gadgets_outer'),
+		            _total_slide_cnt = _slide_outer.find('.shopping_gadgets_frame').length,
+		            _slide_in_view = 1,
+		            _slide_block_width = 320,
+		            _active_slide_frame = 1,
+		            _frame_width = _slide_in_view*_slide_block_width,
+		            _slide_frames = [],
+		            _total_frames = Math.ceil(_total_slide_cnt/_slide_in_view),
+		            _is_lock = 0;
+		            
+		            
+		        function setFramesProp(){
+		            _slide_frames[0] = 0;
+		            for(idx = 1; idx < _total_frames; idx++){
+		                
+		                // last frame
+		                if((idx+1) == _total_frames){
+		                    _slide_frames[idx] = (_total_slide_cnt - ((_total_frames-1)*_slide_in_view))*_slide_block_width*(-1) + _slide_frames[idx-1];
+		                }else{
+		                    _slide_frames[idx] = (_frame_width*idx)*(-1);
+		                }
+		            }
+		        }
+
+		        function bindEvents(){
+		            _shopping_gadgets.on('click','[data-slider="prev"]',function(){
+		                if($(this).hasClass('disable') || _is_lock)
+		                    return false;
+		                _is_lock = 1;
+		                slidePrev();
+		            });
+		            
+		            _shopping_gadgets.on('click','[data-slider="next"]',function(){
+		                if($(this).hasClass('disable') || _is_lock)
+		                    return false;
+		                _is_lock = 1;
+		                slideNext();
+		            });
+		            
+		            setFramesProp();
+		            
+		            showImagesOnceinNavView();
+		            
+		            updateNavView();
+		        }
+		        
+		        function showImagesOnceinNavView(){
+		            var _active_shopping_gadgets_frame = _slide_outer.find('ul.shopping_gadgets_frame:eq('+ (_active_slide_frame - 1) +')');
+		            if(_active_shopping_gadgets_frame.find('img[data-src]').length > 0){
+            		    var imgEle = _active_shopping_gadgets_frame.find('img[data-src]');
+                		imgEle.each( function ( i, imgEleC ) {
+                		    var imgEle$ = $(imgEleC);
+                        	imgEle$.attr( "src", imgEle$.attr( "data-src" ) );
+		                    imgEle$.removeAttr( "data-src" );
+                		});
+		            }
+		        }
+		        
+		        function updateNavView(){
+		            if(_active_slide_frame != 1){
+		               _prev_nav.removeClass('disable');
+		            }else{
+		               _prev_nav.addClass('disable');
+		            }
+		            
+		            if(_active_slide_frame != _total_frames){
+		               _next_nav.removeClass('disable');
+		            }else{
+		               _next_nav.addClass('disable');
+		            }
+		        }
+		        
+		        function slideCarousel(dir){
+		            var pos = null;
+		            if((_active_slide_frame == _total_frames) || _active_slide_frame ==1){
+		                pos = _slide_frames[_active_slide_frame-1] +"px";
+		            }else{
+		                pos = +_slide_outer.css('margin-left').split('px')[0];
+		                pos += (dir == 'prev') ? _frame_width : _frame_width*(-1); 
+		            }
+		            
+		            _slide_outer.stop(0,0,0).animate({
+		                'margin-left': pos
+		            },function(){
+		                _is_lock = 0;
+		                
+		                showImagesOnceinNavView();
+		                updateNavView();
+		            });
+		        }
+		        
+		        function slidePrev(){
+		            _active_slide_frame--;
+                    slideCarousel('prev');
+		        }
+		        
+		        function slideNext(){
+		            _active_slide_frame++;
+		            slideCarousel('next');
+		        }
+		        
+		        return {
+		            init:function(){
+		                bindEvents();
+		            }
+		        }; 
+		}
+  var shoppingGadget = new ShoppingGadgets();
+		        shoppingGadget.init();
+});
+		        
+		        
+
+	
